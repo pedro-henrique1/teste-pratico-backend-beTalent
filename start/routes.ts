@@ -1,15 +1,6 @@
-/*
-|--------------------------------------------------------------------------
-| Routes file
-|--------------------------------------------------------------------------
-|
-| The routes file is used for defining the HTTP routes.
-|
-*/
-
+import { controllers } from '#generated/controllers'
 import { middleware } from '#start/kernel'
 import router from '@adonisjs/core/services/router'
-import { controllers } from '#generated/controllers'
 
 router.get('/', () => {
   return { hello: 'world' }
@@ -17,21 +8,35 @@ router.get('/', () => {
 
 router
   .group(() => {
-    router
-      .group(() => {
-        router.post('signup', [controllers.NewAccount, 'store'])
-        router.post('login', [controllers.AccessToken, 'store'])
-        router.post('logout', [controllers.AccessToken, 'destroy']).use(middleware.auth())
-      })
-      .prefix('auth')
-      .as('auth')
+    /*
+  |--------------------------------------------------------------------------
+  | Public routes
+  |--------------------------------------------------------------------------
+  */
+
+    router.post('/auth/login', [controllers.AccessToken, 'store'])
+    router.post('/auth/signup', [controllers.NewAccount, 'store'])
+
+    router.post('/transactions', [controllers.Transaction, 'store'])
+
+    /*
+  |--------------------------------------------------------------------------
+  | Private routes
+  |--------------------------------------------------------------------------
+  */
 
     router
       .group(() => {
-        router.get('/profile', [controllers.Profile, 'show'])
+        router.get('/account/profile', [controllers.Profile, 'show'])
+
+        router.resource('products', controllers.Products).apiOnly()
+
+        router.get('/transactions', [controllers.Transaction, 'index'])
+        router.get('/transactions/:id', [controllers.Transaction, 'show'])
+
+        router.patch('/gateways/:id/toggle', [controllers.Gateways, 'index'])
+        router.patch('/gateways/:id/priority', [controllers.Gateways, 'update'])
       })
-      .prefix('account')
-      .as('profile')
       .use(middleware.auth())
   })
   .prefix('/api/v1')

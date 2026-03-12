@@ -10,7 +10,6 @@ services:
     env_file:
       - .env
     environment:
-      - HOST=development
       - DB_HOST=mysql
       - GATEWAY1_URL=http://mock-gateways:3001
       - GATEWAY2_URL=http://mock-gateways:3002
