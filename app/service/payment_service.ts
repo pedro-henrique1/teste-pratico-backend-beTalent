@@ -1,0 +1,42 @@
+import Gateway from '#models/gateways'
+import { ChargeRequest, GatewayResponse } from './contacts/payment_gateway.ts'
+import GatewayFactory from './gateways/gatewat_factory.ts'
+
+export default class PaymentService {
+  public async charge(data: ChargeRequest): Promise<GatewayResponse & { gateway_id: number }> {
+    const gateways = await Gateway.query().where('isActive', true).orderBy('priority', 'asc')
+
+    if (gateways.length === 0) {
+      throw new Error('No active payment gateways available')
+    }
+
+    let lastError: any = null
+
+    for (const gateway of gateways) {
+      try {
+        const adapter = GatewayFactory.make(gateway.name)
+        const response = await adapter.charge(data)
+
+        if (response.success) {
+          return {
+            ...response,
+            gateway_id: gateway.id,
+          }
+        }
+
+        lastError = response
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Unknown error'
+        console.error(`Error processing payment with ${gateway.name}:`, message)
+        lastError = { success: false, error: message, status: 'error' }
+      }
+    }
+
+    return {
+      success: false,
+      error: lastError?.error || 'All payment gateways failed',
+      status: 'error',
+      gateway_id: gateways[gateways.length - 1].id,
+    }
+  }
+}
