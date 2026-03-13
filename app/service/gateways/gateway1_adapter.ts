@@ -1,7 +1,7 @@
 import env from '#start/env'
 import axios from 'axios'
 import jwt from 'jsonwebtoken'
-import { ChargeRequest, GatewayResponse, PaymentGateway } from '../contacts/payment_gateway.ts'
+import { ChargeRequest, GatewayResponse, PaymentGateway } from '../contracts/payment_gateway.ts'
 
 export default class Gateway1Adapter implements PaymentGateway {
   public name = 'Gateway 1'
@@ -40,7 +40,7 @@ export default class Gateway1Adapter implements PaymentGateway {
     try {
       const token = await this.getJwtToken()
       const response = await axios.post(
-        `${this.baseUrl}/transactions`,
+        `${this.baseUrl}/transacoes`,
         {
           amount: data.amount,
           name: data.name,
