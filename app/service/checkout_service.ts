@@ -11,7 +11,7 @@ export default class CheckoutService {
   async process(payload: CheckoutPayload) {
     const client = await Client.updateOrCreate(
       { email: payload.client.email },
-      { name: payload.client.name, email: payload.client.email }
+      { name: payload.client.name }
     )
 
     const productIds = payload.products.map((p) => p.id)

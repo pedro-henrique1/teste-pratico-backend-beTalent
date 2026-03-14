@@ -5,9 +5,9 @@ import type { HttpContext } from '@adonisjs/core/http'
 
 export default class NewAccountController {
   async store({ request, serialize }: HttpContext) {
-    const { email, password } = await request.validateUsing(signupValidator)
+    const { email, password, role } = await request.validateUsing(signupValidator)
 
-    const user = await User.create({ email, password })
+    const user = await User.create({ email, password, role })
     const token = await User.accessTokens.create(user)
 
     return serialize({
