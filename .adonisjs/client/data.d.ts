@@ -9,6 +9,7 @@ import type ClientTransformer from '#transformers/client_transformer'
 import type ProductTransformer from '#transformers/product_transformer'
 import type TransactionTransformer from '#transformers/transaction_transformer'
 import type UserTransformer from '#transformers/user_transformer'
+import type GatewayTransformer from '#transformers/gateway_transformer'
 
 export namespace Data {
   export type Client = InferData<ClientTransformer>
@@ -26,5 +27,9 @@ export namespace Data {
   export type User = InferData<UserTransformer>
   export namespace User {
     export type Variants = InferVariants<UserTransformer>
+  }
+  export type Gateway = InferData<GatewayTransformer>
+  export namespace Gateway {
+    export type Variants = InferVariants<GatewayTransformer>
   }
 }

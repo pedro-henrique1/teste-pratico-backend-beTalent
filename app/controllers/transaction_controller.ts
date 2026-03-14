@@ -7,25 +7,19 @@ import CheckoutService from '../services/checkout_service.ts'
 export default class TransactionsController {
   private checkoutService = new CheckoutService()
 
-  /**
-   * Process a new checkout/transaction
-   */
-  async store({ request, serialize }: HttpContext) {
+  async store({ request, serialize, response }: HttpContext) {
     const payload = await request.validateUsing(checkoutValidator)
 
     try {
       const transaction = await this.checkoutService.process(payload)
       return serialize(TransactionTransformer.transform(transaction))
     } catch (error) {
-      return {
+      return response.badGateway({
         error: error.message,
-      }
+      })
     }
   }
 
-  /**
-   * List transactions
-   */
   async index({ request, serialize }: HttpContext) {
     const page = request.input('page', 1)
     const limit = request.input('limit', 10)
@@ -40,9 +34,6 @@ export default class TransactionsController {
     return serialize(await TransactionTransformer.transform(transactions))
   }
 
-  /**
-   * Show transaction details
-   */
   async show({ params, serialize }: HttpContext) {
     const transaction = await Transaction.query()
       .where('id', params.id)
