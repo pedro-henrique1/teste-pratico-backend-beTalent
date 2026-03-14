@@ -23,8 +23,18 @@ export interface ApiDefinition {
     update: typeof routes['products.update']
     destroy: typeof routes['products.destroy']
   }
+  users: {
+    index: typeof routes['users.index']
+    show: typeof routes['users.show']
+    update: typeof routes['users.update']
+    destroy: typeof routes['users.destroy']
+  }
+  clients: {
+    show: typeof routes['clients.show']
+    index: typeof routes['clients.index']
+  }
   gateways: {
-    index: typeof routes['gateways.index']
+    toggle: typeof routes['gateways.toggle']
     update: typeof routes['gateways.update']
   }
 }
