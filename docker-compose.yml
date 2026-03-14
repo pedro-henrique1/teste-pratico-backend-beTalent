@@ -18,6 +18,11 @@ services:
         condition: service_healthy
     networks:
       - betalent-network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
 
   mysql:
     image: mysql:8.0
@@ -38,6 +43,11 @@ services:
       retries: 10
     networks:
       - betalent-network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
 
   mock-gateways:
     image: matheusprotzen/gateways-mock
@@ -47,6 +57,11 @@ services:
       - "3002:3002"
     networks:
       - betalent-network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 256M
 
 volumes:
   mysql_data:
