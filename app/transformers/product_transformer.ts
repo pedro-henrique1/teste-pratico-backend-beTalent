@@ -3,6 +3,12 @@ import { BaseTransformer } from '@adonisjs/core/transformers'
 
 export default class ProductTransformer extends BaseTransformer<Product> {
   toObject() {
-    return this.pick(this.resource, ['id', 'name', 'amount', 'createdAt', 'updatedAt'])
+    return {
+      id: this.resource.id,
+      name: this.resource.name,
+      price: Number(this.resource.amount),
+      createdAt: this.resource.createdAt,
+      updatedAt: this.resource.updatedAt,
+    }
   }
 }
