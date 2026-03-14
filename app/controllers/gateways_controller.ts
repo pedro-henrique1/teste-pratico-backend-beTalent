@@ -4,7 +4,9 @@ import { gatewayValidator } from '#validators/gateway'
 import { HttpContext } from '@adonisjs/core/http'
 
 export default class GatewaysController {
-  async update({ params, request, response, serialize }: HttpContext) {
+  private transformer = new GatewayTransformer()
+
+  async update({ params, request, response }: HttpContext) {
     const gateway = await Gateway.findOrFail(params.id)
 
     const payload = await request.validateUsing(gatewayValidator)
@@ -12,12 +14,12 @@ export default class GatewaysController {
     gateway.merge(payload)
     await gateway.save()
 
-    const data = serialize(await GatewayTransformer.transform(gateway))
+    const data = this.transformer.transform(gateway)
 
     return response.ok(data)
   }
 
-  async toggle({ params, response, serialize }: HttpContext) {
+  async toggle({ params, response }: HttpContext) {
     const gateway = await Gateway.findOrFail(params.id)
 
     gateway.merge({
@@ -25,7 +27,7 @@ export default class GatewaysController {
     })
     await gateway.save()
 
-    const data = serialize(await GatewayTransformer.transform(gateway))
+    const data = this.transformer.transform(gateway)
 
     return response.ok(data)
   }

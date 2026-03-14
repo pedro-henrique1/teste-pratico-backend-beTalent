@@ -1,8 +1,12 @@
 import Gateway from '#models/gateways'
-import { BaseTransformer } from '@adonisjs/core/transformers'
 
-export default class GatewayTransformer extends BaseTransformer<Gateway> {
-  toObject() {
-    return this.pick(this.resource, ['id', 'name', 'is_active', 'priority'])
+export default class GatewayTransformer {
+  transform(gateway: Gateway) {
+    return {
+      id: gateway.id,
+      name: gateway.name,
+      isActive: gateway.is_active,
+      priority: gateway.priority,
+    }
   }
 }
