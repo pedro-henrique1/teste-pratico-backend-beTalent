@@ -13,7 +13,7 @@ export default class extends BaseSchema {
         .references('id')
         .inTable('gateways')
         .onDelete('SET NULL')
-      table.string('external_id').notNullable()
+      table.string('external_id').nullable()
       table.string('status').notNullable().defaultTo('pending')
       table.decimal('amount', 10, 2).notNullable()
       table.string('card_last_numbers', 4).notNullable()

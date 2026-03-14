@@ -6,7 +6,7 @@ export default class extends BaseSeeder {
     const user = await User.updateOrCreate(
       { email: 'dev@betalent.tech' },
       {
-        password: 'FEC9BB078BF338F464F96B48089EB498',
+        password: 'password',
         role: 'ADMIN',
       }
     )

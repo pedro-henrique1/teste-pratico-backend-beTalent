@@ -2,7 +2,7 @@ import Transaction from '#models/transactions'
 import TransactionTransformer from '#transformers/transaction_transformer'
 import { checkoutValidator } from '#validators/transaction'
 import { HttpContext } from '@adonisjs/core/http'
-import CheckoutService from '../service/checkout_service.ts'
+import CheckoutService from '../services/checkout_service.ts'
 
 export default class TransactionsController {
   private checkoutService = new CheckoutService()
