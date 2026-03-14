@@ -29,11 +29,11 @@ export default class CheckoutService {
         throw new Error(`Product ${p.id} not found`)
       }
 
-      totalAmount += product.amount * p.quantity
+      totalAmount += Number(product.amount) * Number(p.quantity)
 
       productsToAttach[product.id] = {
-        quantity: p.quantity,
-        unit_price: product.amount,
+        quantity: Number(p.quantity),
+        unit_price: Number(product.amount),
       }
     }
 
@@ -63,15 +63,15 @@ export default class CheckoutService {
       newTransaction.amount = totalAmount
       newTransaction.cardLastNumbers = payload.credit_card.number.slice(-4)
 
-      if (!paymentResponse.success) {
-        throw new Error(paymentResponse.error || 'Payment failed')
-      }
-
       await newTransaction.save()
       await newTransaction.related('products').attach(productsToAttach)
 
       return newTransaction
     })
+
+    if (!paymentResponse.success) {
+      throw new Error(paymentResponse.error || 'Payment failed')
+    }
 
     await transaction.load('client')
     await transaction.load('gateway')
