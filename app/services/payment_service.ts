@@ -1,6 +1,6 @@
 import Gateway from '#models/gateways'
 import { ChargeRequest, GatewayResponse } from './contracts/payment_gateway.ts'
-import GatewayFactory from './gateways/gatewat_factory.ts'
+import GatewayFactory from './gateways/gateway_factory.ts'
 
 export default class PaymentService {
   public async charge(data: ChargeRequest): Promise<GatewayResponse & { gateway_id: number }> {
@@ -32,11 +32,6 @@ export default class PaymentService {
       }
     }
 
-    return {
-      success: false,
-      error: lastError?.error || 'All payment gateways failed',
-      status: 'error',
-      gateway_id: gateways[gateways.length - 1].id,
-    }
+    throw new Error(lastError?.error || 'All payment gateways failed')
   }
 }

@@ -1,5 +1,5 @@
 export interface ChargeRequest {
-  amount: number // in cents
+  amount: number
   name: string
   email: string
   card_number: string

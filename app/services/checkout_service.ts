@@ -2,7 +2,7 @@ import Client from '#models/client'
 import Product from '#models/products'
 import Transaction from '#models/transactions'
 import db from '@adonisjs/lucid/services/db'
-import PaymentService from '../service/payment_service.ts'
+import PaymentService from '../services/payment_service.ts'
 import type { CheckoutPayload } from '../types/checkout.ts'
 
 export default class CheckoutService {
