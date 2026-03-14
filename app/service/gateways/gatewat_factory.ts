@@ -1,4 +1,4 @@
-import { PaymentGateway } from '../contacts/payment_gateway.ts'
+import { PaymentGateway } from '../contracts/payment_gateway.ts'
 import Gateway1Adapter from './gateway1_adapter.ts'
 import Gateway2Adapter from './gateway2_adapter.ts'
 

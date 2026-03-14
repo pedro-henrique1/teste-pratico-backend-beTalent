@@ -1,10 +1,10 @@
 import Gateway from '#models/gateways'
-import { ChargeRequest, GatewayResponse } from './contacts/payment_gateway.ts'
+import { ChargeRequest, GatewayResponse } from './contracts/payment_gateway.ts'
 import GatewayFactory from './gateways/gatewat_factory.ts'
 
 export default class PaymentService {
   public async charge(data: ChargeRequest): Promise<GatewayResponse & { gateway_id: number }> {
-    const gateways = await Gateway.query().where('isActive', true).orderBy('priority', 'asc')
+    const gateways = await Gateway.query().where('is_active', true).orderBy('priority', 'asc')
 
     if (gateways.length === 0) {
       throw new Error('No active payment gateways available')

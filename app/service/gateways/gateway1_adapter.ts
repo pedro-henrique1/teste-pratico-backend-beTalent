@@ -31,7 +31,6 @@ export default class Gateway1Adapter implements PaymentGateway {
 
       return newToken
     } catch (error) {
-      // Security: Hide internal credentials or URLs in error
       throw new Error('Could not authenticate with Payment Provider 1')
     }
   }
@@ -40,7 +39,7 @@ export default class Gateway1Adapter implements PaymentGateway {
     try {
       const token = await this.getJwtToken()
       const response = await axios.post(
-        `${this.baseUrl}/transacoes`,
+        `${this.baseUrl}/transactions`,
         {
           amount: data.amount,
           name: data.name,

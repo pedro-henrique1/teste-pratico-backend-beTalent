@@ -11,7 +11,7 @@ export default class Gateway2Adapter implements PaymentGateway {
   public async charge(data: ChargeRequest): Promise<GatewayResponse> {
     try {
       const response = await axios.post(
-        `${this.baseUrl}/transacoes`,
+        `${this.baseUrl}/transactions`,
         {
           valor: data.amount,
           nome: data.name,
@@ -23,7 +23,6 @@ export default class Gateway2Adapter implements PaymentGateway {
           headers: {
             'Gateway-Auth-Token': this.token,
             'Gateway-Auth-Secret': this.secret,
-            'timeout': 5000,
           },
         }
       )
