@@ -57,12 +57,12 @@ Este projeto está totalmente dockerizado, incluindo a API principal, o banco de
    docker compose exec app node ace db:seed
    ```
 
-Ou utilize o Makefile:
+    Ou utilize o Makefile:
 
-```bash
-make migrate
-make seed
-```
+    ```bash
+    make migrate
+    make seed
+    ```
 
 O servidor da API estará disponível através de **`http://localhost:3333`**.
 
