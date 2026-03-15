@@ -1,0 +1,398 @@
+{
+  "info": {
+    "name": "BeTalent API - Nível 2",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3333/api/v1",
+      "type": "string"
+    },
+    {
+      "key": "auth_token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth (Públicas)",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.token) {",
+                  "    pm.collectionVariables.set(\"auth_token\", jsonData.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"dev@betalent.tech\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [ "{{base_url}}" ],
+              "path": [ "auth", "login" ]
+            }
+          }
+        },
+        {
+          "name": "Signup",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"novo@teste.com\",\n  \"password\": \"password123\",\n  \"role\": \"USER\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/signup",
+              "host": [ "{{base_url}}" ],
+              "path": [ "auth", "signup" ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Transactions (Públicas/Privadas)",
+      "item": [
+        {
+          "name": "Comprar Produtos (Pública)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"client\": {\n    \"name\": \"Cliente Comprador\",\n    \"email\": \"comprador@teste.com\"\n  },\n  \"products\": [\n    {\n      \"id\": 1,\n      \"quantity\": 2\n    }\n  ],\n  \"credit_card\": {\n    \"number\": \"5569000000006063\",\n    \"holder_name\": \"Cliente Comprador\",\n    \"exp_month\": 12,\n    \"exp_year\": 2028,\n    \"cvv\": \"010\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/transactions",
+              "host": [ "{{base_url}}" ],
+              "path": [ "transactions" ]
+            }
+          }
+        },
+        {
+          "name": "Listar Transações (Privada)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [ { "key": "token", "value": "{{auth_token}}", "type": "string" } ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/transactions",
+              "host": [ "{{base_url}}" ],
+              "path": [ "transactions" ]
+            }
+          }
+        },
+        {
+          "name": "Detalhes Transação (Privada)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [ { "key": "token", "value": "{{auth_token}}", "type": "string" } ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/transactions/1",
+              "host": [ "{{base_url}}" ],
+              "path": [ "transactions", "1" ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users (Privadas)",
+      "item": [
+        {
+          "name": "Listar Todos",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [ { "key": "token", "value": "{{auth_token}}", "type": "string" } ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/users",
+              "host": [ "{{base_url}}" ],
+              "path": [ "users" ]
+            }
+          }
+        },
+        {
+          "name": "Detalhe de Um",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [ { "key": "token", "value": "{{auth_token}}", "type": "string" } ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/users/1",
+              "host": [ "{{base_url}}" ],
+              "path": [ "users", "1" ]
+            }
+          }
+        },
+        {
+          "name": "Atualizar User",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [ { "key": "token", "value": "{{auth_token}}", "type": "string" } ]
+            },
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"MANAGER\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/users/2",
+              "host": [ "{{base_url}}" ],
+              "path": [ "users", "2" ]
+            }
+          }
+        },
+        {
+          "name": "Deletar User",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [ { "key": "token", "value": "{{auth_token}}", "type": "string" } ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/users/2",
+              "host": [ "{{base_url}}" ],
+              "path": [ "users", "2" ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Clients (Privadas)",
+      "item": [
+        {
+          "name": "Listar",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [ { "key": "token", "value": "{{auth_token}}", "type": "string" } ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/clients",
+              "host": [ "{{base_url}}" ],
+              "path": [ "clients" ]
+            }
+          }
+        },
+        {
+          "name": "Detalhes (Com Compras)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [ { "key": "token", "value": "{{auth_token}}", "type": "string" } ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/clients/1",
+              "host": [ "{{base_url}}" ],
+              "path": [ "clients", "1" ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Products (Privadas)",
+      "item": [
+        {
+          "name": "Listar",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [ { "key": "token", "value": "{{auth_token}}", "type": "string" } ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/products",
+              "host": [ "{{base_url}}" ],
+              "path": [ "products" ]
+            }
+          }
+        },
+        {
+          "name": "Detalhes",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [ { "key": "token", "value": "{{auth_token}}", "type": "string" } ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/products/1",
+              "host": [ "{{base_url}}" ],
+              "path": [ "products", "1" ]
+            }
+          }
+        },
+        {
+          "name": "Criar",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [ { "key": "token", "value": "{{auth_token}}", "type": "string" } ]
+            },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Camiseta do Desafio BeTalent\",\n  \"amount\": 8500\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/products",
+              "host": [ "{{base_url}}" ],
+              "path": [ "products" ]
+            }
+          }
+        },
+        {
+          "name": "Atualizar",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [ { "key": "token", "value": "{{auth_token}}", "type": "string" } ]
+            },
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 9000\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/products/1",
+              "host": [ "{{base_url}}" ],
+              "path": [ "products", "1" ]
+            }
+          }
+        },
+        {
+          "name": "Deletar",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [ { "key": "token", "value": "{{auth_token}}", "type": "string" } ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/products/1",
+              "host": [ "{{base_url}}" ],
+              "path": [ "products", "1" ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Gateways (Privadas)",
+      "item": [
+        {
+          "name": "Listar (Comuns)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [ { "key": "token", "value": "{{auth_token}}", "type": "string" } ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/gateways",
+              "host": [ "{{base_url}}" ],
+              "path": [ "gateways" ]
+            }
+          }
+        },
+        {
+          "name": "Ativar/Desativar Gateway 2",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [ { "key": "token", "value": "{{auth_token}}", "type": "string" } ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/gateways/2/toggle",
+              "host": [ "{{base_url}}" ],
+              "path": [ "gateways", "2", "toggle" ]
+            }
+          }
+        },
+        {
+          "name": "Mudar Prioridade",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [ { "key": "token", "value": "{{auth_token}}", "type": "string" } ]
+            },
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"priority\": 2\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/gateways/1/priority",
+              "host": [ "{{base_url}}" ],
+              "path": [ "gateways", "1", "priority" ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

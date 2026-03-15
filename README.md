@@ -10,6 +10,17 @@ Este repositório contém a solução do teste prático para Back-end da BeTalen
 - **MySQL** (Banco de dados relacional)
 - **Docker & Docker Compose** (Orquestração do ambiente)
 
+## 🧠 Arquitetura e Diferenciais Técnicos
+
+Este projeto adota boas práticas de desenvolvimento para garantir manutenção futura, escalabilidade e manuseio de erros consistentes. Alguns dos principais diferenciais técnicos implementados:
+
+- 🛡️ **Estratégia de Fallback (Resiliência):** O principal desafio deste caso de uso. O sistema foi desenhado para lidar com múltiplos Gateways de Pagamento de forma inteligente. Se o provedor principal de pagamento falhar por instabilidade ou rejeição temporária, a API automaticamente transaciona a compra usando o próximo Gateway disponível pela ordem de prioridade.
+- 🏗️ **Padrões de Projeto (Design Patterns):**
+  - **Service Pattern:** Regras de negócio complexas de transações e cálculos de juros/descontos isoladas dos Controladores HTTP.
+  - **Data Transfer Objects (Transformers):** As respostas devolvidas para o cliente (JSON) são transformadas e padronizadas, ocultando dados sensíveis ou informações de infraestrutura de banco de dados do *output* final da API.
+  - **Validations:** A integridade dos dados de entrada (payloads de criação de usuários, transações ou edição) são rigidamente validados pelo VineJS antes que qualquer processamento lógico seja iniciado.
+- 🚨 **Global Exception Handling:** A API possui um tratador de erros centralizado nativo, de forma que exceções de domínio ou quebras de banco de dados sempre retornam ao usuário final no mesmo formato consistente de erro em JSON, com o Status HTTP (ex: 400, 422, 500) apropriado, protegendo a aplicação contra crash/vazamento de stack traces não tratadas.
+
 ## 📋 Requisitos do Ambiente
 
 Para rodar este projeto localmente você precisará ter instalado em sua máquina:
@@ -103,9 +114,9 @@ Para facilitar a avaliação, este projeto já inclui ferramentas prontas para t
    - **Email:** `dev@betalent.tech`
    - **Senha:** `FEC9BB078BF338F464F96B48089EB498`
 
-<!-- 2. **Collection do Postman**
+2. **Collection do Postman**
    Na raiz do repositório, existe o arquivo **`Postman_Collection.json`**.
-   Basta importá-lo no seu [Postman](https://www.postman.com/) (ou [Insomnia](https://insomnia.rest/)) para ter todas as rotas (com body, headers e tokens base) previamente configuradas e prontas para uso! -->
+   Basta importá-lo no seu [Postman](https://www.postman.com/) para ter todas as rotas (com body, headers e tokens base) previamente configuradas e prontas para uso!
 
 ## 🛠️ Utilitários CLI (Makefile)
 
