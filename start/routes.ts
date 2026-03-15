@@ -29,24 +29,39 @@ router
       .group(() => {
         router.get('/account/profile', [controllers.Profile, 'show'])
 
-        router.resource('products', controllers.Products).apiOnly()
+        router
+          .resource('products', controllers.Products)
+          .apiOnly()
+          .use('*', middleware.role(['MANAGER', 'FINANCE']))
 
-        router.get('/transactions', [controllers.Transaction, 'index'])
-        router.get('/transactions/:id', [controllers.Transaction, 'show'])
+        router
+          .get('/transactions', [controllers.Transaction, 'index'])
+          .use(middleware.role(['MANAGER', 'FINANCE']))
+        router
+          .get('/transactions/:id', [controllers.Transaction, 'show'])
+          .use(middleware.role(['MANAGER', 'FINANCE']))
 
         // USERS: VER TODOS OS USUÁRIOS E VER UM USUÁRIO ESPECÍFICO
-        router.get('/users', [controllers.Users, 'index'])
-        router.get('/users/:id', [controllers.Users, 'show'])
-        router.put('/users/:id', [controllers.Users, 'update'])
-        router.delete('/users/:id', [controllers.Users, 'destroy'])
+        router
+          .group(() => {
+            router.get('/users', [controllers.Users, 'index'])
+            router.get('/users/:id', [controllers.Users, 'show'])
+            router.put('/users/:id', [controllers.Users, 'update'])
+            router.delete('/users/:id', [controllers.Users, 'destroy'])
+          })
+          .use(middleware.role(['MANAGER']))
 
-        // CLIENTES: VER TRANSAÇÕES DO CLIENTE ESPECIFICO E TODOS OS CLIENTES
-        router.get('/clients/:id', [controllers.Clients, 'show'])
-        router.get('/clients', [controllers.Clients, 'index'])
+        // CLIENTES: VER TODOS OS CLIENTES E VER UM CLIENTE ESPECÍFICO
+        router.get('/clients/:id', [controllers.Clients, 'show']).use(middleware.role(['MANAGER']))
+        router.get('/clients', [controllers.Clients, 'index']).use(middleware.role(['MANAGER']))
 
-        // GATEWAYS: ATIVAR/DESATIVAR E PRIORIDADE
-        router.patch('/gateways/:id/toggle', [controllers.Gateways, 'toggle'])
-        router.patch('/gateways/:id/priority', [controllers.Gateways, 'update'])
+        // GATEWAYS: ATIVAR/MUDAR PRIORIDADE
+        router
+          .group(() => {
+            router.patch('/gateways/:id/toggle', [controllers.Gateways, 'toggle'])
+            router.patch('/gateways/:id/priority', [controllers.Gateways, 'update'])
+          })
+          .use(middleware.role(['ADMIN']))
       })
       .use(middleware.auth())
   })
