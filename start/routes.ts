@@ -41,7 +41,7 @@ router
           .get('/transactions/:id', [controllers.Transaction, 'show'])
           .use(middleware.role(['MANAGER', 'FINANCE']))
         router
-          .post('/transactions/:id/charge-back', [controllers.Transaction, 'refund'])
+          .post('/transactions/:id/refund', [controllers.Transaction, 'refund'])
           .use(middleware.role(['MANAGER', 'FINANCE']))
 
         // USERS: VER TODOS OS USUÁRIOS E VER UM USUÁRIO ESPECÍFICO

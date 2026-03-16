@@ -50,7 +50,7 @@ export default class Gateway2Adapter implements PaymentGateway {
   public async refund(): Promise<boolean> {
     try {
       await axios.post(
-        `${this.baseUrl}/transactions/charge-back`,
+        `${this.baseUrl}/transactions/refund`,
         {},
         {
           headers: {

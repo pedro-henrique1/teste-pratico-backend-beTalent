@@ -12,6 +12,7 @@ export interface ApiDefinition {
     store: typeof routes['transaction.store']
     index: typeof routes['transaction.index']
     show: typeof routes['transaction.show']
+    refund: typeof routes['transaction.refund']
   }
   profile: {
     show: typeof routes['profile.show']

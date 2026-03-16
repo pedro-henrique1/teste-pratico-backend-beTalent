@@ -63,7 +63,7 @@ export default class Gateway1Adapter implements PaymentGateway {
     try {
       const token = await this.getJwtToken()
       await axios.post(
-        `${this.baseUrl}/transactions/${externalId}/charge-back`,
+        `${this.baseUrl}/transactions/${externalId}/refund`,
         {},
         {
           headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },

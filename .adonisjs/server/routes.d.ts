@@ -15,6 +15,7 @@ export type ScannedRoutes = {
     'products.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'transaction.index': { paramsTuple?: []; params?: {} }
     'transaction.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'transaction.refund': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'users.index': { paramsTuple?: []; params?: {} }
     'users.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'users.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -51,6 +52,7 @@ export type ScannedRoutes = {
     'new_account.store': { paramsTuple?: []; params?: {} }
     'transaction.store': { paramsTuple?: []; params?: {} }
     'products.store': { paramsTuple?: []; params?: {} }
+    'transaction.refund': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
   }
   PUT: {
     'products.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
