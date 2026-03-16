@@ -1,11 +1,8 @@
 import Gateway from '#models/gateways'
-import GatewayTransformer from '#transformers/gateway_transformer'
 import { gatewayValidator } from '#validators/gateway'
 import { HttpContext } from '@adonisjs/core/http'
 
 export default class GatewaysController {
-  private transformer = new GatewayTransformer()
-
   async update({ params, request, response }: HttpContext) {
     const gateway = await Gateway.findOrFail(params.id)
 
@@ -14,9 +11,7 @@ export default class GatewaysController {
     gateway.merge(payload)
     await gateway.save()
 
-    const data = this.transformer.transform(gateway)
-
-    return response.ok(data)
+    return response.noContent()
   }
 
   async toggle({ params, response }: HttpContext) {
@@ -27,8 +22,6 @@ export default class GatewaysController {
     })
     await gateway.save()
 
-    const data = this.transformer.transform(gateway)
-
-    return response.ok(data)
+    return response.noContent()
   }
 }

@@ -18,7 +18,7 @@ export default class Gateway1Adapter implements PaymentGateway {
 
       return response.data.token
     } catch (error) {
-      throw new GatewayError('Could not authenticate with Payment Provider 1')
+      throw new GatewayError('Could not authenticate with Payment Provider')
     }
   }
 
@@ -35,7 +35,7 @@ export default class Gateway1Adapter implements PaymentGateway {
           cvv: data.cvv,
         },
         {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
           timeout: 5000,
         }
       )

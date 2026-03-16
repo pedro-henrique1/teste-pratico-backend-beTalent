@@ -23,6 +23,7 @@ export default class Gateway2Adapter implements PaymentGateway {
           headers: {
             'Gateway-Auth-Token': this.token,
             'Gateway-Auth-Secret': this.secret,
+            'Content-Type': 'application/json',
           },
         }
       )
