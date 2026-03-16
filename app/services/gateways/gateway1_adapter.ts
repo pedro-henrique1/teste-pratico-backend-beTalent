@@ -1,6 +1,6 @@
+import GatewayError from '#exceptions/gateway_erro'
 import env from '#start/env'
 import axios from 'axios'
-import jwt from 'jsonwebtoken'
 import { ChargeRequest, GatewayResponse, PaymentGateway } from '../contracts/payment_gateway.ts'
 
 export default class Gateway1Adapter implements PaymentGateway {
@@ -9,9 +9,6 @@ export default class Gateway1Adapter implements PaymentGateway {
   private email = env.get('GATEWAY1_EMAIL')
   private authToken = env.get('GATEWAY1_AUTH_TOKEN')
 
-  private safetyMargin = 300
-  private defaultTTL = 3600
-
   private async getJwtToken(): Promise<string> {
     try {
       const response = await axios.post(`${this.baseUrl}/login`, {
@@ -19,19 +16,9 @@ export default class Gateway1Adapter implements PaymentGateway {
         token: this.authToken,
       })
 
-      const newToken = response.data.token
-      let ttl = this.defaultTTL
-      const decoded = jwt.decode(newToken)
-
-      if (decoded && typeof decoded !== 'string' && decoded.exp) {
-        const now = Math.floor(Date.now() / 1000)
-        ttl = decoded.exp - now - this.safetyMargin
-        if (ttl <= 0) ttl = 60
-      }
-
-      return newToken
+      return response.data.token
     } catch (error) {
-      throw new Error('Could not authenticate with Payment Provider 1')
+      throw new GatewayError('Could not authenticate with Payment Provider 1')
     }
   }
 
@@ -59,9 +46,6 @@ export default class Gateway1Adapter implements PaymentGateway {
         status: 'paid',
       }
     } catch (error: any) {
-      if (axios.isAxiosError(error) && error.response?.status === 401) {
-      }
-
       let friendlyError = 'Payment failed during processing'
       if (axios.isAxiosError(error) && error.response?.status === 402) {
         friendlyError = 'Card declined by the issuer'

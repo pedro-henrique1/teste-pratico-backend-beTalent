@@ -2,6 +2,7 @@ import Client from '#models/client'
 import Product from '#models/products'
 import Transaction from '#models/transactions'
 import db from '@adonisjs/lucid/services/db'
+import { TransactionStatus } from '../enums/transaction_enum.ts'
 import PaymentService from '../services/payment_service.ts'
 import type { CheckoutPayload } from '../types/checkout.ts'
 
@@ -18,7 +19,7 @@ export default class CheckoutService {
     const dbProducts = await Product.query().whereIn('id', productIds)
 
     let totalAmount = 0
-    const productsToAttach: Record<number, { quantity: number; unit_price: number }> = {}
+    const productsToAttach: Record<number, { quantity: number }> = {}
 
     const productMap = new Map(dbProducts.map((p) => [p.id, p]))
 
@@ -26,40 +27,22 @@ export default class CheckoutService {
       const product = productMap.get(p.id)
 
       if (!product) {
-        throw new Error(`Product ${p.id} not found`)
+        throw new Error(`Product invalid`)
       }
 
       totalAmount += Number(product.amount) * Number(p.quantity)
 
       productsToAttach[product.id] = {
         quantity: Number(p.quantity),
-        unit_price: Number(product.amount),
       }
     }
-
-    if (totalAmount <= 0) {
-      throw new Error('Invalid purchase amount')
-    }
-
-    const paymentResponse = await this.paymentService.charge({
-      amount: totalAmount,
-      name: payload.client.name,
-      email: payload.client.email,
-      card_number: payload.credit_card.number,
-      card_holder_name: payload.credit_card.holder_name,
-      exp_month: payload.credit_card.exp_month,
-      exp_year: payload.credit_card.exp_year,
-      cvv: payload.credit_card.cvv,
-    })
 
     const transaction = await db.transaction(async (trx) => {
       const newTransaction = new Transaction()
       newTransaction.useTransaction(trx)
 
       newTransaction.clientId = client.id
-      newTransaction.gatewayId = paymentResponse.gateway_id
-      newTransaction.externalId = paymentResponse.external_id || null
-      newTransaction.status = paymentResponse.status
+      newTransaction.status = TransactionStatus.PENDING
       newTransaction.amount = totalAmount
       newTransaction.cardLastNumbers = payload.credit_card.number.slice(-4)
 
@@ -69,8 +52,35 @@ export default class CheckoutService {
       return newTransaction
     })
 
-    if (!paymentResponse.success) {
-      throw new Error(paymentResponse.error || 'Payment failed')
+    try {
+      const paymentResponse = await this.paymentService.charge({
+        amount: totalAmount,
+        name: payload.client.name,
+        email: payload.client.email,
+        card_number: payload.credit_card.number,
+        card_holder_name: payload.credit_card.holder_name,
+        exp_month: payload.credit_card.exp_month,
+        exp_year: payload.credit_card.exp_year,
+        cvv: payload.credit_card.cvv,
+      })
+
+      transaction.gatewayId = paymentResponse.gateway_id
+      transaction.externalId = paymentResponse.external_id || null
+      transaction.status = paymentResponse.success
+        ? TransactionStatus.PAID
+        : TransactionStatus.REFUSED
+
+      await transaction.save()
+
+      if (!paymentResponse.success) {
+        throw new Error('Payment failed')
+      }
+    } catch (error) {
+      if (transaction.status === TransactionStatus.PENDING) {
+        transaction.status = TransactionStatus.REFUSED
+        await transaction.save()
+      }
+      throw error
     }
 
     await transaction.load('client')

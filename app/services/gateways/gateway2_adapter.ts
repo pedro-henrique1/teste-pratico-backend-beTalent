@@ -33,9 +33,6 @@ export default class Gateway2Adapter implements PaymentGateway {
         status: 'paid',
       }
     } catch (error: any) {
-      if (axios.isAxiosError(error) && error.response?.status === 401) {
-      }
-
       let friendlyError = 'Payment failed during processing'
       if (axios.isAxiosError(error) && error.response?.status === 402) {
         friendlyError = 'Card declined by the issuer'
