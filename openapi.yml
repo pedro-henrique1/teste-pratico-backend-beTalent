@@ -1,0 +1,585 @@
+openapi: 3.0.0
+info:
+  title: Teste Prático Back-end BeTalent API
+  description: Documentação da API
+  version: 1.0.0
+servers:
+  - url: http://localhost:3333/api/v1
+    description: Servidor Local
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+          format: email
+        role:
+          type: string
+          enum: [ADMIN, MANAGER, FINANCE, USER]
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        amount:
+          type: number
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    Transaction:
+      type: object
+      properties:
+        id:
+          type: integer
+        client_id:
+          type: integer
+        gateway_id:
+          type: integer
+        amount:
+          type: number
+        status:
+          type: string
+          enum: [PENDING, PAID, REFUSED, REFUNDED]
+        card_last_numbers:
+          type: string
+        external_id:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        client:
+          $ref: '#/components/schemas/Client'
+        products:
+          type: array
+          items:
+            $ref: '#/components/schemas/Product'
+
+    Client:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    Gateway:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        is_active:
+          type: boolean
+        priority:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    Error:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              message:
+                type: string
+              rule:
+                type: string
+              field:
+                type: string
+
+paths:
+  /auth/signup:
+    post:
+      tags: [Autenticação]
+      summary: Cadastra um novo usuário
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  minLength: 8
+                role:
+                  type: string
+                  enum: [ADMIN, MANAGER, FINANCE, USER]
+      responses:
+        '201':
+          description: Usuário criado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '422':
+          description: Erro de validação
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/login:
+    post:
+      tags: [Autenticação]
+      summary: Realiza o login e retorna um JWT
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Login realizado com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                  token:
+                    type: string
+        '401':
+          description: Credenciais inválidas
+
+  /transactions:
+    post:
+      tags: [Transações]
+      summary: Processa um novo checkout
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [client, products, credit_card]
+              properties:
+                client:
+                  type: object
+                  required: [name, email]
+                  properties:
+                    name:
+                      type: string
+                    email:
+                      type: string
+                      format: email
+                products:
+                  type: array
+                  items:
+                    type: object
+                    required: [id, quantity]
+                    properties:
+                      id:
+                        type: integer
+                      quantity:
+                        type: integer
+                credit_card:
+                  type: object
+                  required: [number, holder_name, exp_month, exp_year, cvv]
+                  properties:
+                    number:
+                      type: string
+                    holder_name:
+                      type: string
+                    exp_month:
+                      type: integer
+                    exp_year:
+                      type: integer
+                    cvv:
+                      type: string
+      responses:
+        '201':
+          description: Transação processada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+        '422':
+          description: Erro de validação
+        '400':
+          description: Erro no pagamento (rejeitado ou falha nos gateways)
+
+    get:
+      tags: [Transações]
+      summary: Lista o histórico de transações
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Lista de transações
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Transaction'
+
+  /transactions/{id}:
+    get:
+      tags: [Transações]
+      summary: Detalha uma transação específica
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Detalhes da transação
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+        '404':
+          description: Transação não encontrada
+
+  /transactions/{id}/charge-back:
+    post:
+      tags: [Transações]
+      summary: Realiza o estorno (refund) de uma transação
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Estorno realizado com sucesso
+        '400':
+          description: Erro ao processar estorno
+
+  /products:
+    get:
+      tags: [Produtos]
+      summary: Lista todos os produtos
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Lista de produtos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+    post:
+      tags: [Produtos]
+      summary: Cria um novo produto
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, amount]
+              properties:
+                name:
+                  type: string
+                amount:
+                  type: number
+      responses:
+        '201':
+          description: Produto criado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+
+  /products/{id}:
+    get:
+      tags: [Produtos]
+      summary: Detalha um produto
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Detalhes do produto
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+    put:
+      tags: [Produtos]
+      summary: Atualiza um produto
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                amount:
+                  type: number
+      responses:
+        '200':
+          description: Produto atualizado
+    delete:
+      tags: [Produtos]
+      summary: Remove um produto
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Produto removido
+
+  /users:
+    get:
+      tags: [Usuários]
+      summary: Lista todos os usuários
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Lista de usuários
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+
+  /users/{id}:
+    get:
+      tags: [Usuários]
+      summary: Detalha um usuário
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Detalhes do usuário
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+    put:
+      tags: [Usuários]
+      summary: Atualiza um usuário
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                role:
+                  type: string
+                  enum: [ADMIN, MANAGER, FINANCE, USER]
+      responses:
+        '200':
+          description: Usuário atualizado
+    delete:
+      tags: [Usuários]
+      summary: Deleta um usuário
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Usuário deletado
+
+  /account/profile:
+    get:
+      tags: [Usuários]
+      summary: Retorna o perfil do usuário autenticado
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Perfil do usuário
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+  /clients:
+    get:
+      tags: [Clientes]
+      summary: Lista todos os clientes
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Lista de clientes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Client'
+
+  /clients/{id}:
+    get:
+      tags: [Clientes]
+      summary: Detalha um cliente e seu histórico
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Detalhes do cliente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Client'
+                  - type: object
+                    properties:
+                      transactions:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Transaction'
+
+  /gateways/{id}/toggle:
+    patch:
+      tags: [Gateways]
+      summary: Habilita/Desabilita um gateway de pagamento
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Status alterado com sucesso
+
+  /gateways/{id}/priority:
+    patch:
+      tags: [Gateways]
+      summary: Altera a prioridade de um gateway
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [priority]
+              properties:
+                priority:
+                  type: integer
+      responses:
+        '204':
+          description: Prioridade alterada com sucesso

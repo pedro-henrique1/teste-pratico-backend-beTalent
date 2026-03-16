@@ -123,6 +123,22 @@
               "path": [ "transactions", "1" ]
             }
           }
+        },
+        {
+          "name": "Estornar Transação (Privada)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [ { "key": "token", "value": "{{auth_token}}", "type": "string" } ]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/transactions/1/refund",
+              "host": [ "{{base_url}}" ],
+              "path": [ "transactions", "1", "refund" ]
+            }
+          }
         }
       ]
     },

@@ -1,6 +1,24 @@
 # Teste Prático Back-end BeTalent - Nível 2
 
+![NodeJS](https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white)
+![AdonisJS](https://img.shields.io/badge/AdonisJS-220052?style=for-the-badge&logo=AdonisJS&logoColor=white)
+![MySQL](https://img.shields.io/badge/MySQL-00000F?style=for-the-badge&logo=mysql&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+![Swagger](https://img.shields.io/badge/Swagger-85EA2D?style=for-the-badge&logo=Swagger&logoColor=black)
+
 Este repositório contém a solução do teste prático para Back-end da BeTalent, focado nos requisitos e entrega definidos no **Nível 2**, mas com adição de diferenciais técnicos extras.
+
+## Índice
+
+1. [Tecnologias Utilizadas](#-tecnologias-utilizadas)
+2. [Arquitetura e Diferenciais Técnicos](#-arquitetura-e-diferenciais-técnicos)
+3. [Requisitos do Ambiente](#-requisitos-do-ambiente)
+4. [Como Instalar e Rodar o Projeto](#-como-instalar-e-rodar-o-projeto)
+5. [Testando a API e Usuário Padrão](#-testando-a-api-e-usuário-padrão)
+6. [Documentação da API (OpenAPI/Swagger)](#-documentação-da-api-openapiswagger)
+7. [Utilitários CLI (Makefile)](#️-utilitários-cli-makefile)
+
+---
 
 ## 🚀 Tecnologias Utilizadas
 
@@ -9,6 +27,9 @@ Este repositório contém a solução do teste prático para Back-end da BeTalen
 - **VineJS** (Validação de Dados)
 - **MySQL** (Banco de dados relacional)
 - **Docker & Docker Compose** (Orquestração do ambiente)
+- **Swagger/OpenAPI** (Documentação)
+
+---
 
 ## 🧠 Arquitetura e Diferenciais Técnicos
 
@@ -19,16 +40,21 @@ Este projeto adota boas práticas de desenvolvimento para garantir manutenção 
   - **Service Pattern:** Regras de negócio complexas de transações e cálculos de juros/descontos isoladas dos Controladores HTTP.
   - **Data Transfer Objects (Transformers):** As respostas devolvidas para o cliente (JSON) são transformadas e padronizadas, ocultando dados sensíveis ou informações de infraestrutura de banco de dados do *output* final da API.
   - **Validations:** A integridade dos dados de entrada (payloads de criação de usuários, transações ou edição) são rigidamente validados pelo VineJS antes que qualquer processamento lógico seja iniciado.
+
 - 🚨 **Global Exception Handling:** A API possui um tratador de erros centralizado nativo, de forma que exceções de domínio ou quebras de banco de dados sempre retornam ao usuário final no mesmo formato consistente de erro em JSON, com o Status HTTP (ex: 400, 422, 500) apropriado, protegendo a aplicação contra crash/vazamento de stack traces não tratadas.
+
+---
 
 ## 📋 Requisitos do Ambiente
 
 Para rodar este projeto localmente você precisará ter instalado em sua máquina:
 
 - [Docker](https://www.docker.com/) e [Docker Compose](https://docs.docker.com/compose/)
-- *(Opcional)* [Node.js](https://nodejs.org/) (Para rodar fora do Docker)
+- *(Opcional)* [Node.js](https://nodejs.org/) e **Make** (Para rodar comandos de atalho)
 
-## 🔧 Como instalar e rodar o projeto
+---
+
+## 🔧 Como Instalar e Rodar o Projeto
 
 Este projeto está totalmente dockerizado, incluindo a API principal, o banco de dados MySQL e os **Mock Gateways**.
 
@@ -45,7 +71,7 @@ Este projeto está totalmente dockerizado, incluindo a API principal, o banco de
    cp .env.example .env
    ```
 
-   *(Verifique se o `.env` existe e possui as credenciais do DB e URLs dos Gateways como `http://mock-gateways:3001` e `http://mock-gateways:3002`)*
+   *(Verifique se o `.env` existe e possui as credenciais do banco e URLs dos Gateways como `http://mock-gateways:3001` e `http://mock-gateways:3002`)*
 
 3. Suba as aplicações via Docker Compose:
 
@@ -61,25 +87,37 @@ Este projeto está totalmente dockerizado, incluindo a API principal, o banco de
 
    *Este comando irá construir a imagem da API, baixar as imagens do MySQL e do Mock Gateways, e iniciar todos os serviços simultaneamente.*
 
-4. Rode as *migrations* e os *seeders* para inicializar a estrutura e popular usuários/produtos base **(caso o container não resolva automaticamente na inicialização)**:
+4. Rode as *migrations* e os *seeders* para inicializar a estrutura e popular usuários/produtos base:
+   **(Caso o container não resolva automaticamente na inicialização)**
 
    ```bash
    docker compose exec app node ace migration:run
    docker compose exec app node ace db:seed
    ```
 
-    Ou utilize o Makefile:
-
-    ```bash
-    make migrate
-    make seed
-    ```
+   > **Via Makefile:** Você pode rodar apenas `make migrate` e `make seed`.
 
 O servidor da API estará disponível através de **`http://localhost:3333`**.
 
+---
+
+## 📖 Documentação da API (OpenAPI/Swagger)
+
+A API possui uma especificação técnica detalhada seguindo o padrão *OpenAPI 3.0*. O arquivo de documentação está localizado na raiz do projeto:
+
+- *Arquivo:* openapi.yaml
+
+Para visualizar a documentação de forma interativa, você pode:
+
+1. Importar o arquivo openapi.yaml no *Swagger Editor* ou *Postman*.
+2. Utilizar extensões de visualização no VS Code (como OpenAPI (Swagger) Editor).
+3. Abrir o arquivo em qualquer ferramenta compatível com Swagger/OpenAPI.
+
+---
+
 ## 🛣️ Detalhamento de Rotas
 
-Abaixo estão as principais rotas contempladas pela aplicação. Rotas privadas necessitam do envio de um **Bearer Token** no cabeçalho (*Authorization: Bearer seu_token*).
+Abaixo estão as principais rotas contempladas pela aplicação. Rotas privadas necessitam do envio de um **Bearer Token** no cabeçalho HTTP (`Authorization: Bearer <seu_token>`).
 
 ### Rotas Públicas
 

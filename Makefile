@@ -19,6 +19,7 @@ help:
 
 up:
 	@echo "Subindo os containers..."
+	cp .env.example .env
 	$(DC) up -d
 
 down:
@@ -27,6 +28,7 @@ down:
 
 up-build:
 	@echo "Subindo os containers com build..."
+	cp .env.example .env
 	$(DC) up --build
 
 restart:
