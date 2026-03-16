@@ -43,7 +43,7 @@ export default class Transaction extends BaseModel {
 
   @manyToMany(() => Product, {
     pivotTable: 'transaction_products',
-    pivotColumns: ['quantity', 'unit_price'],
+    pivotColumns: ['quantity', 'product_id'],
   })
   declare products: ManyToMany<typeof Product>
 }

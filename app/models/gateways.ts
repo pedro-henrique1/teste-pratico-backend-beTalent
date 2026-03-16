@@ -12,7 +12,7 @@ export default class Gateway extends BaseModel {
   @column()
   declare name: string
 
-  @column()
+  @column({ serializeAs: 'isActive' })
   declare is_active: boolean
 
   @column()

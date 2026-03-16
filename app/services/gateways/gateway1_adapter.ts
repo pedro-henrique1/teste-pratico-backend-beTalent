@@ -1,16 +1,13 @@
+import GatewayError from '#exceptions/gateway_erro'
 import env from '#start/env'
 import axios from 'axios'
-import jwt from 'jsonwebtoken'
-import { ChargeRequest, GatewayResponse, PaymentGateway } from '../contacts/payment_gateway.ts'
+import { ChargeRequest, GatewayResponse, PaymentGateway } from '../contracts/payment_gateway.ts'
 
-export default class Gateway2Adapter implements PaymentGateway {
-  public name = 'Gateway 2'
-  private baseUrl = env.get('GATEWAY2_URL')
-  private email = env.get('GATEWAY2_EMAIL')
-  private authToken = env.get('GATEWAY2_AUTH_TOKEN')
-
-  private safetyMargin = 300
-  private defaultTTL = 3600
+export default class Gateway1Adapter implements PaymentGateway {
+  public name = 'Gateway 1'
+  private baseUrl = env.get('GATEWAY1_URL')
+  private email = env.get('GATEWAY1_EMAIL')
+  private authToken = env.get('GATEWAY1_AUTH_TOKEN')
 
   private async getJwtToken(): Promise<string> {
     try {
@@ -19,20 +16,9 @@ export default class Gateway2Adapter implements PaymentGateway {
         token: this.authToken,
       })
 
-      const newToken = response.data.token
-      let ttl = this.defaultTTL
-      const decoded = jwt.decode(newToken)
-
-      if (decoded && typeof decoded !== 'string' && decoded.exp) {
-        const now = Math.floor(Date.now() / 1000)
-        ttl = decoded.exp - now - this.safetyMargin
-        if (ttl <= 0) ttl = 60
-      }
-
-      return newToken
+      return response.data.token
     } catch (error) {
-      // Security: Hide internal credentials or URLs in error
-      throw new Error('Could not authenticate with Payment Provider 1')
+      throw new GatewayError('Could not authenticate with Payment Provider')
     }
   }
 
@@ -49,7 +35,7 @@ export default class Gateway2Adapter implements PaymentGateway {
           cvv: data.cvv,
         },
         {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
           timeout: 5000,
         }
       )
@@ -60,9 +46,6 @@ export default class Gateway2Adapter implements PaymentGateway {
         status: 'paid',
       }
     } catch (error: any) {
-      if (axios.isAxiosError(error) && error.response?.status === 401) {
-      }
-
       let friendlyError = 'Payment failed during processing'
       if (axios.isAxiosError(error) && error.response?.status === 402) {
         friendlyError = 'Card declined by the issuer'
@@ -73,6 +56,24 @@ export default class Gateway2Adapter implements PaymentGateway {
         error: friendlyError,
         status: 'error',
       }
+    }
+  }
+
+  public async refund(externalId: string): Promise<boolean> {
+    try {
+      const token = await this.getJwtToken()
+      await axios.post(
+        `${this.baseUrl}/transactions/${externalId}/refund`,
+        {},
+        {
+          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+          timeout: 5000,
+        }
+      )
+
+      return true
+    } catch (error) {
+      return false
     }
   }
 }

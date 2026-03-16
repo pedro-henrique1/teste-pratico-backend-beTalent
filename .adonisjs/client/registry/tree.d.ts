@@ -12,6 +12,7 @@ export interface ApiDefinition {
     store: typeof routes['transaction.store']
     index: typeof routes['transaction.index']
     show: typeof routes['transaction.show']
+    refund: typeof routes['transaction.refund']
   }
   profile: {
     show: typeof routes['profile.show']
@@ -23,8 +24,18 @@ export interface ApiDefinition {
     update: typeof routes['products.update']
     destroy: typeof routes['products.destroy']
   }
+  users: {
+    index: typeof routes['users.index']
+    show: typeof routes['users.show']
+    update: typeof routes['users.update']
+    destroy: typeof routes['users.destroy']
+  }
+  clients: {
+    show: typeof routes['clients.show']
+    index: typeof routes['clients.index']
+  }
   gateways: {
-    index: typeof routes['gateways.index']
+    toggle: typeof routes['gateways.toggle']
     update: typeof routes['gateways.update']
   }
 }

@@ -1,16 +1,21 @@
 import Gateway from '#models/gateways'
-import { ChargeRequest, GatewayResponse } from './contacts/payment_gateway.ts'
-import GatewayFactory from './gateways/gatewat_factory.ts'
+import Transaction from '#models/transactions'
+import logger from '@adonisjs/core/services/logger'
+import { ChargeRequest, GatewayResponse } from './contracts/payment_gateway.ts'
+import GatewayFactory from './gateways/gateway_factory.ts'
 
 export default class PaymentService {
   public async charge(data: ChargeRequest): Promise<GatewayResponse & { gateway_id: number }> {
-    const gateways = await Gateway.query().where('isActive', true).orderBy('priority', 'asc')
+    const gateways = await Gateway.query()
+      .where('is_active', true)
+      .orderBy('priority', 'asc')
+      .orderBy('id', 'asc')
 
     if (gateways.length === 0) {
       throw new Error('No active payment gateways available')
     }
 
-    let lastError: any = null
+    let lastError: GatewayResponse | null = null
 
     for (const gateway of gateways) {
       try {
@@ -27,7 +32,7 @@ export default class PaymentService {
         lastError = response
       } catch (error) {
         const message = error instanceof Error ? error.message : 'Unknown error'
-        console.error(`Error processing payment with ${gateway.name}:`, message)
+        logger.error({ gateway: gateway.name, error: message }, 'Payment gateway error')
         lastError = { success: false, error: message, status: 'error' }
       }
     }
@@ -35,8 +40,19 @@ export default class PaymentService {
     return {
       success: false,
       error: lastError?.error || 'All payment gateways failed',
-      status: 'error',
+      status: lastError?.status || 'error',
       gateway_id: gateways[gateways.length - 1].id,
     }
+  }
+
+  public async refund(transaction: Transaction): Promise<boolean> {
+    if (!transaction.gatewayId || !transaction.externalId) {
+      throw new Error('Transaction cannot be refunded: gateway data missing')
+    }
+
+    await transaction.load('gateway')
+    const adapter = GatewayFactory.make(transaction.gateway.name)
+
+    return adapter.refund(transaction.externalId)
   }
 }

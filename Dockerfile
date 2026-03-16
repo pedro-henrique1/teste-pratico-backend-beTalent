@@ -18,4 +18,4 @@ COPY --chown=node:node . .
 
 EXPOSE 3333
 
-CMD ["npm", "run", "dev"]
+CMD [ "sh", "-c", "npx wait-on tcp:mysql:3306 && node ace migration:run --force && node ace db:seed && npm run dev"]

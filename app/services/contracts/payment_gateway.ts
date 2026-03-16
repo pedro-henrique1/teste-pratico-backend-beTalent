@@ -1,5 +1,5 @@
 export interface ChargeRequest {
-  amount: number // in cents
+  amount: number
   name: string
   email: string
   card_number: string
@@ -19,4 +19,5 @@ export interface GatewayResponse {
 export interface PaymentGateway {
   name: string
   charge(data: ChargeRequest): Promise<GatewayResponse>
+  refund(externalId: string): Promise<boolean>
 }
