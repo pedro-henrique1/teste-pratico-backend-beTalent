@@ -343,9 +343,9 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/products/1",
+              "raw": "{{base_url}}/products/2",
               "host": [ "{{base_url}}" ],
-              "path": [ "products", "1" ]
+              "path": [ "products", "2" ]
             }
           }
         }
