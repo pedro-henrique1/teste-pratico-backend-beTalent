@@ -5,6 +5,13 @@ import { signupValidator } from '#validators/user'
 import type { HttpContext } from '@adonisjs/core/http'
 
 export default class NewAccountController {
+  /**
+   * @signup
+   * @summary Cadastrar novo usuário na plataforma
+   * @description Cria uma conta de usuário
+   * @requestBody {"email": "...", "password": "...", "role": "..."}
+   * @responseBody 200 - {"user": {"email": "...", "role": "...", "firstName": "...", "lastName": "..."}, "token": "..."}
+   */
   async store({ request, serialize }: HttpContext) {
     const { email, password, role } = await request.validateUsing(signupValidator)
 

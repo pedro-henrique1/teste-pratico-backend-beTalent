@@ -10,6 +10,12 @@ export default class TransactionsController {
   private checkoutService = new CheckoutService()
   private paymentService = new PaymentService()
 
+  /**
+   * @store
+   * @summary Realizar uma compra informando o produto
+   * @description Processa uma nova transação (pagamento)
+   * @requestBody {"client_id": "...", "gateway_id": "...", "products": ["..."]}
+   */
   async store({ request, serialize, response }: HttpContext) {
     const payload = await request.validateUsing(checkoutValidator)
 
@@ -23,6 +29,12 @@ export default class TransactionsController {
     }
   }
 
+  /**
+   * @index
+   * @summary Listar todas as transações
+   * @description Retorna uma lista de todas as transações (Requer Gerente/Financeiro)
+   * @paramUse(sortable, filterable)
+   */
   async index({ request, serialize }: HttpContext) {
     const page = request.input('page', 1)
     const limit = request.input('limit', 10)
@@ -37,6 +49,11 @@ export default class TransactionsController {
     return serialize(await TransactionTransformer.transform(transactions))
   }
 
+  /**
+   * @show
+   * @summary Obter uma transação
+   * @description Retorna uma transação específica por ID (Requer Gerente/Financeiro)
+   */
   async show({ params, serialize }: HttpContext) {
     const transaction = await Transaction.query()
       .where('id', params.id)
@@ -48,6 +65,11 @@ export default class TransactionsController {
     return serialize(await TransactionTransformer.transform(transaction))
   }
 
+  /**
+   * @refund
+   * @summary Estornar uma transação
+   * @description Realiza o estorno de uma transação específica junto ao gateway de pagamento (Requer Gerente/Financeiro)
+   */
   async refund({ params, response }: HttpContext) {
     const transaction = await Transaction.findOrFail(params.id)
 

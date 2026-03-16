@@ -1,6 +1,8 @@
+import swagger from '#config/swagger'
 import { controllers } from '#generated/controllers'
 import { middleware } from '#start/kernel'
 import router from '@adonisjs/core/services/router'
+import AutoSwagger from 'adonis-autoswagger'
 
 router.get('/', () => {
   return { hello: 'world' }
@@ -69,3 +71,11 @@ router
       .use(middleware.auth())
   })
   .prefix('/api/v1')
+
+router.get('/swagger', async () => {
+  return AutoSwagger.default.docs(router.toJSON(), swagger)
+})
+
+router.get('/docs', async () => {
+  return AutoSwagger.default.ui('/swagger', swagger)
+})
