@@ -19,4 +19,5 @@ export interface GatewayResponse {
 export interface PaymentGateway {
   name: string
   charge(data: ChargeRequest): Promise<GatewayResponse>
+  refund(externalId: string): Promise<boolean>
 }

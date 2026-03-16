@@ -58,4 +58,22 @@ export default class Gateway1Adapter implements PaymentGateway {
       }
     }
   }
+
+  public async refund(externalId: string): Promise<boolean> {
+    try {
+      const token = await this.getJwtToken()
+      await axios.post(
+        `${this.baseUrl}/transactions/${externalId}/charge-back`,
+        {},
+        {
+          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+          timeout: 5000,
+        }
+      )
+
+      return true
+    } catch (error) {
+      return false
+    }
+  }
 }

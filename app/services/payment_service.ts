@@ -1,4 +1,5 @@
 import Gateway from '#models/gateways'
+import Transaction from '#models/transactions'
 import logger from '@adonisjs/core/services/logger'
 import { ChargeRequest, GatewayResponse } from './contracts/payment_gateway.ts'
 import GatewayFactory from './gateways/gateway_factory.ts'
@@ -42,5 +43,16 @@ export default class PaymentService {
       status: lastError?.status || 'error',
       gateway_id: gateways[gateways.length - 1].id,
     }
+  }
+
+  public async refund(transaction: Transaction): Promise<boolean> {
+    if (!transaction.gatewayId || !transaction.externalId) {
+      throw new Error('Transaction cannot be refunded: gateway data missing')
+    }
+
+    await transaction.load('gateway')
+    const adapter = GatewayFactory.make(transaction.gateway.name)
+
+    return adapter.refund(transaction.externalId)
   }
 }

@@ -1,7 +1,6 @@
 import { BaseModel, belongsTo, column, manyToMany } from '@adonisjs/lucid/orm'
 import type { BelongsTo, ManyToMany } from '@adonisjs/lucid/types/relations'
 import { DateTime } from 'luxon'
-import { TransactionStatus } from '../enums/transaction_enum.ts'
 import Client from './client.ts'
 import Gateway from './gateways.ts'
 import Product from './products.ts'
@@ -22,7 +21,7 @@ export default class Transaction extends BaseModel {
   declare externalId: string | null
 
   @column()
-  declare status: TransactionStatus
+  declare status: string
 
   @column()
   declare amount: number
