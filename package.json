@@ -67,7 +67,7 @@
     "@tuyau/core": "^1.0.0",
     "@vinejs/vine": "^4.3.0",
     "adonis-autoswagger": "^3.73.0",
-    "axios": "^1.13.6",
+    "axios": "^1.15.0",
     "better-sqlite3": "^12.6.2",
     "jsonwebtoken": "^9.0.3",
     "luxon": "^3.7.2",
